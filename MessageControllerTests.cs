@@ -6,6 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Gride;
 using Xunit;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using GrideTest;
+using Microsoft.AspNetCore.Authentication;
+using System.Net.Http.Headers;
+using System.Net.Http;
 
 namespace IntegrationTests
 {
@@ -18,7 +24,6 @@ namespace IntegrationTests
         [InlineData("/Message/Create")]
         public async Task Get_EndpointsReturnSuccessAndCorrectContentType(string url)
         {
-            // Arrange
             
             // Act
             var response = await _client.GetAsync(url);
@@ -52,7 +57,22 @@ namespace IntegrationTests
             Assert.StartsWith("http://localhost/Identity/Account/Login",
                 response.Headers.Location.OriginalString);
         }
+        [Theory]
+        [InlineData("/Message")]
+        [InlineData("/Message/Create")]
+        public async Task Get_PageWhenAuthenticated(string url)
+        {
+            //arrange
+            var client = _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services => services.AddAuthentication(Names.TestName).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(Names.TestName, Options => { })))
+                .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Names.TestName);
 
-
+            //Act
+            HttpResponseMessage Page = await client.GetAsync(url);
+            //Assert
+            Assert.Equal(HttpStatusCode.OK, Page.StatusCode);
+        }
+       
+           
     }
 }
