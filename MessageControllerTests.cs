@@ -13,10 +13,15 @@ using Microsoft.AspNetCore.Authentication;
 using System.Net.Http.Headers;
 using System.Net.Http;
 
+using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
+using AngleSharp.XPath;
+
 namespace IntegrationTests
 {
     public class MessageControllerTests : _IntegrationTest
     {
+
         private readonly WebApplicationFactory<Startup> _factory = new WebApplicationFactory<Startup>();
         [Theory]
         [InlineData("/")]
@@ -62,7 +67,7 @@ namespace IntegrationTests
         [InlineData("/Message/Create")]
         public async Task Get_PageWhenAuthenticated(string url)
         {
-            //arrange
+            //Arrange
             var client = _factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services => services.AddAuthentication(Names.TestName).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(Names.TestName, Options => { })))
                 .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Names.TestName);
@@ -73,6 +78,28 @@ namespace IntegrationTests
             Assert.Equal(HttpStatusCode.OK, Page.StatusCode);
         }
        
-           
+        [Theory]
+        [InlineData("/Message/Create")]
+        public async Task Warring_WhenNoText(string url)
+        {
+            //Arrange
+            HttpResponseMessage page = await _client.GetAsync(url);
+            IHtmlDocument document = await HtmlHelpers.GetDocumentAsync(page);
+            IHtmlFormElement form = (IHtmlFormElement)document.Body.SelectSingleNode(@".//form[@id=""messageForm""]");
+            IHtmlInputElement textField = (IHtmlInputElement)document.Body.SelectSingleNode(@".//input[@id=""textInput""]");
+            IHtmlInputElement submitButton = (IHtmlInputElement)document.Body.SelectSingleNode(@".//input[@id=""submitForNewMessage""]");
+
+            //Act
+
+
+            if (form != null)
+            {
+                textField.Value = "aaaaaaaaaaaaaaaaaaaaaaaaa";
+                await form.SubmitAsync(submitButton);
+            }
+            //Arrange
+
+            Assert.Equal(HttpStatusCode.OK, page.StatusCode);
+        }
     }
 }

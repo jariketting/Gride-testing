@@ -44,36 +44,6 @@ namespace GrideTest
 
 	internal static class Data
 	{
-		public static readonly Dictionary<string, HttpContent> postValues = new Dictionary<string, HttpContent>()
-		{
-			{ "/Shifts/Delete/1", new StringContent("")},
-			{ "/Shifts/DeleteAllFollowing/1", new StringContent("")},
-			{ "/Shifts/Create", new StringContent(JsonConvert.SerializeObject(new
-			{
-				shift = new Shift()
-				{
-					Start = DateTime.Now,
-					End = DateTime.Now.AddHours(2),
-					LocationID = 1,
-				},
-				selectedSkills = new string[]{"1"},
-				selectedFunctions = new string[]{"1"},
-				selectedFunctionsMax = new int[]{ 3 },
-			}))},
-			{ "/Shifts/Edit/1", new StringContent(JsonConvert.SerializeObject(new
-			{
-				selectedSkills = new string[]{"1"},
-				selectedFunctions = new string[]{"1"},
-				selectedFunctionsMax = new int[]{ 3 },
-				selectedEmployees = new string[]{"1"},
-			}))},
-			{ "/Shifts/AssignEmployee/1", new StringContent(JsonConvert.SerializeObject(new
-			{
-				EmployeeID = 1,
-				FunctionID = 1
-			}))}
-		};
-
 		public static readonly Dictionary<string, List<(string element, (string name, string value) attribute)>> FormData = new Dictionary<string, List<(string element, (string name, string value) attribute)>>
 		{
 			{ "/Shifts/Edit/1", new List<(string element, (string name, string value) attribute)>
