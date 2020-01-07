@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Gride.Models;
 using System;
 
-namespace UnitTestGride
+namespace GrideTest
 {
     [TestClass]
     public class AvailabilityTests
