@@ -17,6 +17,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.2.6" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+		<PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<PackageReference Include="xunit" Version="2.4.1" />
 		<PackageReference Include="xunit.extensibility.core" Version="2.4.1" />
@@ -26,8 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\gride\Gride.csproj" />
-    <ProjectReference Include="..\Gride 01\Gride.csproj" />
+    <ProjectReference Include="../gride1/Gride.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

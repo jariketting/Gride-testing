@@ -22,9 +22,9 @@ using ASIO = AngleSharp.Io;
 
 namespace GrideTest
 {
-    public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+    public class TestAuthHandlerWorks : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+        public TestAuthHandlerWorks(IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
@@ -104,7 +104,7 @@ namespace GrideTest
 
             var testName = "Test";
 
-            Client = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services => services.AddAuthentication(testName).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(testName, Options => { })))
+            Client = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services => services.AddAuthentication(testName).AddScheme<AuthenticationSchemeOptions, TestAuthHandlerWorks>(testName, Options => { })))
                 .CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
             Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(testName);
