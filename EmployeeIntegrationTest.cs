@@ -172,7 +172,6 @@ namespace GrideTest
 		[Theory]
 		[InlineData("/Employee/Edit/1")]
 		[InlineData("/Employee/Delete/1")]
-		[InlineData("/Employee/Create")]
 		public async Task EmployeeFormsWork(string url)
 		{
 			HttpResponseMessage defPage = await Client.GetAsync(url);
