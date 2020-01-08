@@ -30,6 +30,7 @@ namespace GrideTest
 				Location = context.Locations.First(x => x.LocationID == 1),
 				Weekly = true,
 			}, new int[] { 1 }, new int[] { 2 }, new int[] { 0, 5 }, context);
+
 		}
 
 		public static void ReInitDB(ApplicationDbContext context)
