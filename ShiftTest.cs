@@ -4,7 +4,6 @@ using AngleSharp.XPath;
 
 using Gride;
 using Gride.Data;
-using Gride.Models;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -15,11 +14,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -34,6 +30,9 @@ using ASIO = AngleSharp.Io;
 
 namespace GrideTest
 {
+	/// <summary>
+	/// standard names for test
+	/// </summary>
 	internal static class Names
 	{
 		public static readonly string TestName = "Test";
@@ -42,13 +41,22 @@ namespace GrideTest
 		public static readonly string TestEmployeeName = "0123456@hr.nl";
 	}
 
+	/// <summary>
+	/// Data that will be used by the tests
+	/// </summary>
 	internal static class Data
 	{
+		/// <summary>
+		/// The Data that will be used by form intergration Test
+		/// </summary>
+		/// <remarks>
+		/// The layout of the data is as followed:
+		/// (The element as an xpath, (The name of the attribute, The new value of the attribute or <see cref="null"/> if the attribute has to be removed))
+		/// </remarks>
 		public static readonly Dictionary<string, List<(string element, (string name, string value) attribute)>> FormData = new Dictionary<string, List<(string element, (string name, string value) attribute)>>
 		{
 			{ "/Shifts/Edit/1", new List<(string element, (string name, string value) attribute)>
 			{
-				// I fucking love xpath
 				(@".//input[@id=""Start""]",("value","2019-12-31T00:00:00.000")),
 				(@".//input[@id=""End""]",("value","2019-12-31T02:00:00.000")),
 				(@".//input[@name=""selectedSkills"" and @value=""1""]", ("checked","checked")),
@@ -78,8 +86,14 @@ namespace GrideTest
 		};
 	}
 
+	/// <summary>
+	/// Controller test for shifts
+	/// </summary>
 	public class ShiftTest : IClassFixture<WebApplicationFactory<Startup>>
 	{
+		/// <summary>
+		/// The factory make the client
+		/// </summary>
 		private readonly WebApplicationFactory<Startup> Factory;
 
 		public ShiftTest(WebApplicationFactory<Startup> factory)
@@ -87,6 +101,9 @@ namespace GrideTest
 			Factory = factory;
 		}
 
+		/// <summary>
+		/// Basic Test to check if the controller works
+		/// </summary>
 		[Theory]
 		[InlineData("/Shifts/")]
 		[InlineData("/Shifts/Index")]
@@ -106,18 +123,32 @@ namespace GrideTest
 		}
 	}
 
+	/// <summary>
+	/// Test for when the user isn't logedin
+	/// </summary>
 	public class NotLogedInTests :
 		IClassFixture<ShiftTestFactory<Startup>>
 	{
+		/// <summary>
+		/// The client used by the test
+		/// </summary>
 		private readonly HttpClient Client;
+
+		/// <summary>
+		/// The factory that makes <see cref="Client"/>
+		/// </summary>
 		private readonly ShiftTestFactory<Startup> Factory;
 
 		public NotLogedInTests(ShiftTestFactory<Startup> factory)
 		{
 			Factory = factory;
+			// Makes the client
 			Client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 		}
 
+		/// <summary>
+		/// Test if the pages are protected against unauthorized users
+		/// </summary>
 		[Theory]
 		[InlineData("/Shifts/")]
 		[InlineData("/Shifts/Index")]
@@ -133,11 +164,21 @@ namespace GrideTest
 			Assert.StartsWith("http://localhost/Identity/Account/Login", Page.Headers.Location.OriginalString);
 		}
 	}
-
+	
+	/// <summary>
+	/// Test for when the user is logedin
+	/// </summary>
 	public class LogedInTests :
 		IClassFixture<ShiftTestFactory<Startup>>
 	{
+		/// <summary>
+		/// The client used by the test
+		/// </summary>
 		private readonly HttpClient Client;
+
+		/// <summary>
+		/// The factory that makes <see cref="Client"/>
+		/// </summary>
 		private readonly ShiftTestFactory<Startup> Factory;
 
 		public LogedInTests(ShiftTestFactory<Startup> factory)
@@ -148,6 +189,9 @@ namespace GrideTest
 			Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Names.TestName);
 		}
 
+		/// <summary>
+		/// Tests if logedin people can't access pages that forbidden for them
+		/// </summary>
 		[Theory]
 		[InlineData("/Shifts/")]
 		[InlineData("/Shifts/Index")]
@@ -163,10 +207,20 @@ namespace GrideTest
 		}
 	}
 
+	/// <summary>
+	/// Test for admins
+	/// </summary>
 	public class AdminLogedInTests :
 		IClassFixture<ShiftTestFactory<Startup>>
 	{
+		/// <summary>
+		/// The factory that makes <see cref="Client"/>
+		/// </summary>
 		private readonly ShiftTestFactory<Startup> Factory;
+
+		/// <summary>
+		/// The client used by the tests
+		/// </summary>
 		private readonly HttpClient Client;
 
 		public AdminLogedInTests(ShiftTestFactory<Startup> factory)
@@ -177,6 +231,9 @@ namespace GrideTest
 			Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Names.AdminTestName);
 		}
 
+		/// <summary>
+		/// Test if admins can visit pages they're authorized to
+		/// </summary>
 		[Theory]
 		[InlineData("/Shifts/")]
 		[InlineData("/Shifts/Index")]
@@ -191,6 +248,9 @@ namespace GrideTest
 			Assert.Equal(HttpStatusCode.OK, Page.StatusCode);
 		}
 
+		/// <summary>
+		/// Test posts with No data
+		/// </summary>
 		[Theory]
 		[InlineData("/Shifts/Edit/1")]
 		[InlineData("/Shifts/Delete/1")]
@@ -204,26 +264,17 @@ namespace GrideTest
 			Assert.Equal(HttpStatusCode.BadRequest, Page.StatusCode);
 		}
 
+		/// <summary>
+		/// Tests DeleteAllFolowing
+		/// </summary>
 		[Theory]
 		[InlineData(2)]
 		public async Task DeleteAllFolowingTest(int id)
 		{
+			// Gets the page
 			HttpResponseMessage defPage = await Client.GetAsync($"/Shifts/Delete/{id}");
 			IHtmlDocument document = await HtmlHelpers.GetDocumentAsync(defPage);
-			// makes the page ready to posted
-			foreach ((string element, (string name, string value) attribute) data in Data.FormData["/Shifts/Delete/1"])
-			{
-				IElement element = (IElement)document.Body.SelectSingleNode(data.element);
-				if (data.attribute.value == null)
-				{
-					if (element.HasAttribute(data.attribute.name))
-						element.RemoveAttribute(data.attribute.name);
-				}
-				else
-				{
-					element.SetAttribute(data.attribute.name, data.attribute.value);
-				}
-			}
+			// Gets the form and submit
 			IHtmlFormElement form = (IHtmlFormElement)document.Body.SelectSingleNode(".//main//form");
 			IHtmlInputElement submit = (IHtmlInputElement)document.Body.SelectSingleNode(@".//input[@type=""submit""]");
 			ASIO.DocumentRequest request = form.GetSubmission(submit);
@@ -238,11 +289,15 @@ namespace GrideTest
 				message.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
 			}
 
+			// Checks if everything is okay
 			HttpResponseMessage response = await Client.SendAsync(message);
 			Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
 			Assert.Equal("/Shifts", response.Headers.Location.OriginalString);
 		}
 
+		/// <summary>
+		/// Tests the form
+		/// </summary>
 		[Theory]
 		[InlineData("/Shifts/Edit/1")]
 		[InlineData("/Shifts/Delete/1")]
@@ -250,9 +305,11 @@ namespace GrideTest
 		[InlineData("/Shifts/Create")]
 		public async Task AngleSharpTests(string url)
 		{
+			// Gets the page
 			HttpResponseMessage defPage = await Client.GetAsync(url);
 			IHtmlDocument document = await HtmlHelpers.GetDocumentAsync(defPage);
-			// makes the page ready to posted
+			// makes the page ready to be posted
+			// Gets the data to be posted
 			foreach ((string element, (string name, string value) attribute) data in Data.FormData[url])
 			{
 				IElement element = (IElement)document.Body.SelectSingleNode(data.element);
@@ -266,6 +323,7 @@ namespace GrideTest
 					element.SetAttribute(data.attribute.name, data.attribute.value);
 				}
 			}
+			// Gets the form and submit
 			IHtmlFormElement form = (IHtmlFormElement)document.Body.SelectSingleNode(".//main//form");
 			IHtmlInputElement submit = (IHtmlInputElement)document.Body.SelectSingleNode(@".//input[@type=""submit""]");
 			ASIO.DocumentRequest request = form.GetSubmission(submit);
@@ -280,19 +338,26 @@ namespace GrideTest
 				message.Content.Headers.TryAddWithoutValidation(header.Key, header.Value);
 			}
 
+			// Checks if everything is wright
 			HttpResponseMessage response = await Client.SendAsync(message);
 			Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
 			Assert.Equal(url != "/Shifts/AssignEmployee/1" ? "/Shifts" : "/Shifts/Details/1", response.Headers.Location.OriginalString);
 		}
 	}
 
+	/// <summary>
+	/// A factory class that initializes everything for the tests
+	/// </summary>
+	/// <typeparam name="TSartup">The startup class type used by this factory</typeparam>
 	public class ShiftTestFactory<TSartup> :
 		WebApplicationFactory<TSartup> where TSartup : class
 	{
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
 		{
+			// Configures the WebHost builder
 			builder.ConfigureServices(services =>
 			{
+				// Adds a database
 				IServiceProvider serviceProvider = new ServiceCollection().
 				AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
 
@@ -309,9 +374,8 @@ namespace GrideTest
 
 					try
 					{
+						// Initializes the database
 						Utils.InitDB(db);
-						Debug.WriteLine("[000] First Email: " + db.EmployeeModel.ToList()[0].EMail + " is Admin: " + db.EmployeeModel.ToList()[0].Admin); ;
-						Debug.WriteLine("[001] Is Admin Name Admin: " + db.EmployeeModel.First(e => e.EMail == Names.TestAdminName).Admin);
 					}
 					catch (Exception ex)
 					{
@@ -322,6 +386,12 @@ namespace GrideTest
 		}
 	}
 
+	/// <summary>
+	/// A class to handle loging in
+	/// </summary>
+	/// <remarks>
+	/// uses user 0123456@hr.nl aka John Doe
+	/// </remarks>
 	public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 	{
 		public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -343,6 +413,12 @@ namespace GrideTest
 		}
 	}
 
+	/// <summary>
+	/// A class to handle loging in as admin
+	/// </summary>
+	/// <remarks>
+	/// uses user 0967844@hr.nl aka Guus Joppe
+	/// </remarks>
 	public class AdminTestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 	{
 		public AdminTestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
