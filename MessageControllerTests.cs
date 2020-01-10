@@ -80,7 +80,7 @@ namespace IntegrationTests
        
         [Theory]
         [InlineData("/Message/Create")]
-        public async Task Warring_WhenNoText(string url)
+        public async Task Warning_WhenNoText(string url)
         {
             //Arrange
             HttpResponseMessage page = await _client.GetAsync(url);
