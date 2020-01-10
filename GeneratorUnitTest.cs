@@ -4,7 +4,6 @@ using Gride.Data;
 using Gride.Gen;
 using Gride.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +49,7 @@ namespace GrideTest
 			[Theory]
 			[InlineData("/Shifts/Generate/")]
 			[InlineData("/Shifts/Generated/")]
-			public async Task EmployeeControllerReturnsViewTest(string url)
+			public async Task GeneratorControllerReturnsViewTest(string url)
 			{
 				HttpClient client = Factory.CreateClient();
 
@@ -59,12 +58,6 @@ namespace GrideTest
 				response.EnsureSuccessStatusCode();
 				Assert.Equal("text/html; charset=utf-8", response.Content.Headers.ContentType.ToString());
 			}
-
-			[Fact]
-			public async Task Generator_Returns_A_List_Of_Shifts() { 
-				
-			}
-
 		}
 
 		
