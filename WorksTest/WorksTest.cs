@@ -205,7 +205,7 @@ namespace GrideTest.WorksTest
 	/// <summary>
 	/// Tests for logged in admin
 	/// </summary>
-	public class AdminLogedInTests :
+	public class AdminLoggedInTests :
 		IClassFixture<WorksTestFactory<Startup>>
 	{
 		private readonly WorksTestFactory<Startup> Factory;
@@ -215,7 +215,7 @@ namespace GrideTest.WorksTest
 		/// Build factory
 		/// </summary>
 		/// <param name="factory"></param>
-		public AdminLogedInTests(WorksTestFactory<Startup> factory)
+		public AdminLoggedInTests(WorksTestFactory<Startup> factory)
 		{
 			Factory = factory;
 			Client = Factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services => services.AddAuthentication(Names.AdminTestName).AddScheme<AuthenticationSchemeOptions, AdminTestAuthHandler>(Names.AdminTestName, Options => { })))
