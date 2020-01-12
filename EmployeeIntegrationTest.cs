@@ -36,6 +36,7 @@ namespace GrideTest
 {
 	internal static class EmployeeData
 	{
+		//Setting up the form inputs for the pages Employee/Edit/1, Employee/Delete, Employee/Create
 		public static readonly Dictionary<string, List<(string element, (string name, string value) attribute)>> FormData = new Dictionary<string, List<(string element, (string name, string value) attribute)>>
 		{
 			{ "/Employee/Edit/1", new List<(string element, (string name, string value) attribute)>

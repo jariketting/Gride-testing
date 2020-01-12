@@ -27,7 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-    <ProjectReference Include="..\Gride 01\Gride.csproj" />
+    <ProjectReference Include="..\Gride\Gride.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
