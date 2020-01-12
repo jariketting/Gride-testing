@@ -15,6 +15,7 @@ namespace GrideTest
 		public static void InitDB(ApplicationDbContext context)
 		{
 			DbInitializer.Initialize(context);
+
 			AddShift(new Shift()
 			{
 				Start = DateTime.Now,
@@ -30,6 +31,14 @@ namespace GrideTest
 				Location = context.Locations.First(x => x.LocationID == 1),
 				Weekly = true,
 			}, new int[] { 1 }, new int[] { 2 }, new int[] { 0, 5 }, context);
+
+			AddWork(new Work()
+			{
+				ShiftID = 1,
+				EmployeeID = 1,
+				Overtime = 0,
+				Delay = 0
+			}, context);
 
 		}
 
@@ -47,6 +56,12 @@ namespace GrideTest
 				}
 
 			InitDB(context);
+		}
+
+		private async static void AddWork(Work work, ApplicationDbContext _context)
+		{
+			_context.Add(work);
+			await _context.SaveChangesAsync();
 		}
 
 		private async static void AddShift(Shift shift, int[] selectedSkills, int[] selectedFunctions, int[] selectedFunctionsMax, ApplicationDbContext _context)
