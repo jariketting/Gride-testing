@@ -162,7 +162,7 @@ namespace GrideTest.WorksTest
 	/// <summary>
 	/// Tests logged in users
 	/// </summary>
-	public class LogedInTests :
+	public class LoggedInTests :
 		IClassFixture<WorksTestFactory<Startup>>
 	{
 		private readonly HttpClient Client;
@@ -172,7 +172,7 @@ namespace GrideTest.WorksTest
 		/// Build factory
 		/// </summary>
 		/// <param name="factory"></param>
-		public LogedInTests(WorksTestFactory<Startup> factory)
+		public LoggedInTests(WorksTestFactory<Startup> factory)
 		{
 			Factory = factory;
 			Client = factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services => services.AddAuthentication(Names.TestName).AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(Names.TestName, Options => { })))
